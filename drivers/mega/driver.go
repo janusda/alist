@@ -7,6 +7,8 @@ import (
 	"github.com/alist-org/alist/v3/pkg/http_range"
 	"github.com/rclone/rclone/lib/readers"
 	"io"
+	"net/http"
+	"net/url"
 	"time"
 
 	"github.com/alist-org/alist/v3/internal/driver"
@@ -33,6 +35,20 @@ func (d *Mega) GetAddition() driver.Additional {
 
 func (d *Mega) Init(ctx context.Context) error {
 	d.c = mega.New()
+	// support http proxy
+	if d.HttpProxy != "" {
+		proxy, err := url.Parse(d.HttpProxy)
+		if err != nil {
+			return fmt.Errorf("parse http proxy failed: %w", err)
+		}
+		client := &http.Client{
+			Timeout: 10 * time.Second,
+			Transport: &http.Transport{
+				Proxy: http.ProxyURL(proxy),
+			},
+		}
+		d.c.SetClient(client)
+	}
 	return d.c.Login(d.Email, d.Password)
 }
 
