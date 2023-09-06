@@ -23,12 +23,10 @@ import (
 type GoogleDrive struct {
 	model.Storage
 	Addition
-	AccessToken            string
-	ServiceAccountFile     int
-	ServiceAccountFileList []string
-	Client                 *resty.Client
-	NoRedirectClient       *resty.Client
-	HttpClient             *http.Client
+	AccessToken      string
+	Client           *resty.Client
+	NoRedirectClient *resty.Client
+	HttpClient       *http.Client
 }
 
 func (d *GoogleDrive) Config() driver.Config {
