@@ -112,7 +112,7 @@ func (d *GoogleDrive) refreshToken() error {
 
 		var resp base.TokenResp
 		var e TokenError
-		res, err := base.RestyClient.R().SetResult(&resp).SetError(&e).
+		res, err := d.Client.R().SetResult(&resp).SetError(&e).
 			SetFormData(map[string]string{
 				"assertion":  assertion,
 				"grant_type": "urn:ietf:params:oauth:grant-type:jwt-bearer",
@@ -133,7 +133,7 @@ func (d *GoogleDrive) refreshToken() error {
 	url := "https://www.googleapis.com/oauth2/v4/token"
 	var resp base.TokenResp
 	var e TokenError
-	res, err := base.RestyClient.R().SetResult(&resp).SetError(&e).
+	res, err := d.Client.R().SetResult(&resp).SetError(&e).
 		SetFormData(map[string]string{
 			"client_id":     d.ClientID,
 			"client_secret": d.ClientSecret,
@@ -152,7 +152,7 @@ func (d *GoogleDrive) refreshToken() error {
 }
 
 func (d *GoogleDrive) request(url string, method string, callback base.ReqCallback, resp interface{}) ([]byte, error) {
-	req := base.RestyClient.R()
+	req := d.NoRedirectClient.R()
 	req.SetHeader("Authorization", "Bearer "+d.AccessToken)
 	req.SetQueryParam("includeItemsFromAllDrives", "true")
 	req.SetQueryParam("supportsAllDrives", "true")
@@ -169,6 +169,7 @@ func (d *GoogleDrive) request(url string, method string, callback base.ReqCallba
 		return nil, err
 	}
 	if e.Error.Code != 0 {
+		// 打印日志
 		if e.Error.Code == 401 {
 			err = d.refreshToken()
 			if err != nil {

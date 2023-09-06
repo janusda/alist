@@ -13,6 +13,7 @@ type Addition struct {
 	ClientID       string `json:"client_id" required:"true" default:"202264815644.apps.googleusercontent.com"`
 	ClientSecret   string `json:"client_secret" required:"true" default:"X4Z3ca8xfWDb1Voo-F9a7ZxJ"`
 	ChunkSize      int64  `json:"chunk_size" type:"number" default:"5" help:"chunk size while uploading (unit: MB)"`
+	HttpProxy      string `json:"http_proxy" type:"string"`
 }
 
 var config = driver.Config{

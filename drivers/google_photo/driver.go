@@ -2,7 +2,9 @@ package google_photo
 
 import (
 	"context"
+	"crypto/tls"
 	"fmt"
+	"github.com/alist-org/alist/v3/internal/conf"
 	"net/http"
 	"strconv"
 	"strings"
@@ -18,7 +20,9 @@ import (
 type GooglePhoto struct {
 	model.Storage
 	Addition
-	AccessToken string
+	AccessToken      string
+	Client           *resty.Client
+	NoRedirectClient *resty.Client
 }
 
 func (d *GooglePhoto) Config() driver.Config {
@@ -30,6 +34,21 @@ func (d *GooglePhoto) GetAddition() driver.Additional {
 }
 
 func (d *GooglePhoto) Init(ctx context.Context) error {
+	d.Client = resty.New().
+		SetHeader("user-agent", base.UserAgent).
+		SetRetryCount(3).
+		SetTimeout(base.DefaultTimeout).
+		SetTLSClientConfig(&tls.Config{InsecureSkipVerify: conf.Conf.TlsInsecureSkipVerify})
+	d.NoRedirectClient = resty.New().SetRedirectPolicy(
+		resty.RedirectPolicyFunc(func(req *http.Request, via []*http.Request) error {
+			return http.ErrUseLastResponse
+		}),
+	).SetTLSClientConfig(&tls.Config{InsecureSkipVerify: conf.Conf.TlsInsecureSkipVerify})
+	d.NoRedirectClient.SetHeader("user-agent", base.UserAgent)
+	if d.HttpProxy != "" {
+		d.Client.SetProxy(d.HttpProxy)
+		d.NoRedirectClient.SetProxy(d.HttpProxy)
+	}
 	return d.refreshToken()
 }
 
@@ -97,7 +116,7 @@ func (d *GooglePhoto) Put(ctx context.Context, dstDir model.Obj, stream model.Fi
 		"X-Goog-Upload-Raw-Size":     strconv.FormatInt(stream.GetSize(), 10),
 	}
 	url := "https://photoslibrary.googleapis.com/v1/uploads"
-	res, err := base.NoRedirectClient.R().SetHeaders(postHeaders).
+	res, err := d.NoRedirectClient.R().SetHeaders(postHeaders).
 		SetError(&e).
 		Post(url)
 

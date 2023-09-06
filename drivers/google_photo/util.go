@@ -11,9 +11,9 @@ import (
 // do others that not defined in Driver interface
 
 const (
-	FETCH_ALL = "all"
-	FETCH_ALBUMS = "albums"
-	FETCH_ROOT = "root"
+	FETCH_ALL          = "all"
+	FETCH_ALBUMS       = "albums"
+	FETCH_ROOT         = "root"
 	FETCH_SHARE_ALBUMS = "share_albums"
 )
 
@@ -21,7 +21,7 @@ func (d *GooglePhoto) refreshToken() error {
 	url := "https://www.googleapis.com/oauth2/v4/token"
 	var resp base.TokenResp
 	var e TokenError
-	_, err := base.RestyClient.R().SetResult(&resp).SetError(&e).
+	_, err := d.Client.R().SetResult(&resp).SetError(&e).
 		SetFormData(map[string]string{
 			"client_id":     d.ClientID,
 			"client_secret": d.ClientSecret,
@@ -39,7 +39,7 @@ func (d *GooglePhoto) refreshToken() error {
 }
 
 func (d *GooglePhoto) request(url string, method string, callback base.ReqCallback, resp interface{}, headers map[string]string) ([]byte, error) {
-	req := base.RestyClient.R()
+	req := d.Client.R()
 	req.SetHeader("Authorization", "Bearer "+d.AccessToken)
 	req.SetHeader("Accept-Encoding", "gzip")
 	if headers != nil {
@@ -89,15 +89,15 @@ func (d *GooglePhoto) getFiles(id string) ([]MediaItem, error) {
 func (d *GooglePhoto) getFakeRoot() ([]MediaItem, error) {
 	return []MediaItem{
 		{
-			Id: FETCH_ALL,
+			Id:    FETCH_ALL,
 			Title: "全部媒体",
 		},
 		{
-			Id: FETCH_ALBUMS,
+			Id:    FETCH_ALBUMS,
 			Title: "全部影集",
 		},
 		{
-			Id: FETCH_SHARE_ALBUMS,
+			Id:    FETCH_SHARE_ALBUMS,
 			Title: "共享影集",
 		},
 	}, nil
@@ -131,7 +131,7 @@ func (d *GooglePhoto) getMedias(albumId string) ([]MediaItem, error) {
 		map[string]string{
 			"fields":    "mediaItems(id,baseUrl,mimeType,mediaMetadata,filename),nextPageToken",
 			"pageSize":  "100",
-			"albumId": albumId,
+			"albumId":   albumId,
 			"pageToken": "first",
 		}, http.MethodPost)
 }
@@ -163,7 +163,7 @@ func (d *GooglePhoto) getMedia(id string) (MediaItem, error) {
 	return resp, nil
 }
 
-func (d *GooglePhoto) fetchItems(url string, query map[string]string, method string) ([]MediaItem, error){
+func (d *GooglePhoto) fetchItems(url string, query map[string]string, method string) ([]MediaItem, error) {
 	res := make([]MediaItem, 0)
 	for query["pageToken"] != "" {
 		if query["pageToken"] == "first" {
