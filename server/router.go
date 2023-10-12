@@ -56,6 +56,8 @@ func Init(e *gin.Engine) {
 	// auth
 	api.GET("/auth/sso", handles.SSOLoginRedirect)
 	api.GET("/auth/sso_callback", handles.SSOLoginCallback)
+	api.GET("/auth/get_sso_id", handles.SSOLoginCallback)
+	api.GET("/auth/sso_get_token", handles.SSOLoginCallback)
 
 	//webauthn
 	webauthn.GET("/webauthn_begin_registration", handles.BeginAuthnRegistration)
@@ -71,8 +73,8 @@ func Init(e *gin.Engine) {
 
 	_fs(auth.Group("/fs"))
 	admin(auth.Group("/admin", middlewares.AuthAdmin))
-	if flags.Dev {
-		dev(g.Group("/dev"))
+	if flags.Debug || flags.Dev {
+		debug(g.Group("/debug"))
 	}
 	static.Static(g, func(handlers ...gin.HandlerFunc) {
 		e.NoRoute(handlers...)

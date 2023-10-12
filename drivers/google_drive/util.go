@@ -3,14 +3,15 @@ package google_drive
 import (
 	"context"
 	"fmt"
+	"github.com/alist-org/alist/v3/pkg/http_range"
+	"net/http"
+	"strconv"
+
 	"github.com/alist-org/alist/v3/drivers/base"
 	"github.com/alist-org/alist/v3/internal/model"
-	"github.com/alist-org/alist/v3/pkg/http_range"
 	"github.com/alist-org/alist/v3/pkg/utils"
 	"github.com/go-resty/resty/v2"
 	log "github.com/sirupsen/logrus"
-	"net/http"
-	"strconv"
 )
 
 // do others that not defined in Driver interface
@@ -81,7 +82,7 @@ func (d *GoogleDrive) getFiles(id string) ([]File, error) {
 		}
 		query := map[string]string{
 			"orderBy":  orderBy,
-			"fields":   "files(id,name,mimeType,size,modifiedTime,thumbnailLink,shortcutDetails),nextPageToken",
+			"fields":   "files(id,name,mimeType,size,modifiedTime,createdTime,thumbnailLink,shortcutDetails,md5Checksum,sha1Checksum,sha256Checksum),nextPageToken",
 			"pageSize": "1000",
 			"q":        fmt.Sprintf("'%s' in parents and trashed = false", id),
 			//"includeItemsFromAllDrives": "true",
