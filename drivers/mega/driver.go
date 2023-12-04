@@ -4,12 +4,13 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"github.com/alist-org/alist/v3/pkg/http_range"
-	"github.com/rclone/rclone/lib/readers"
 	"io"
 	"net/http"
 	"net/url"
 	"time"
+
+	"github.com/alist-org/alist/v3/pkg/http_range"
+	"github.com/rclone/rclone/lib/readers"
 
 	"github.com/alist-org/alist/v3/internal/driver"
 	"github.com/alist-org/alist/v3/internal/errs"
@@ -185,7 +186,7 @@ func (d *Mega) Put(ctx context.Context, dstDir model.Obj, stream model.FileStrea
 			if err != nil {
 				return err
 			}
-			up(id * 100 / u.Chunks())
+			up(float64(id) * 100 / float64(u.Chunks()))
 		}
 
 		_, err = u.Finish()
