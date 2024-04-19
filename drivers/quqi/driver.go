@@ -1,11 +1,9 @@
 package quqi
 
 import (
+	"bytes"
 	"context"
-	"fmt"
 	"io"
-	"net/http"
-	"net/url"
 	"strconv"
 	"strings"
 	"time"
@@ -15,13 +13,19 @@ import (
 	"github.com/alist-org/alist/v3/internal/model"
 	"github.com/alist-org/alist/v3/pkg/utils"
 	"github.com/alist-org/alist/v3/pkg/utils/random"
+	"github.com/aws/aws-sdk-go/aws"
+	"github.com/aws/aws-sdk-go/aws/credentials"
+	"github.com/aws/aws-sdk-go/aws/session"
+	"github.com/aws/aws-sdk-go/service/s3"
+	"github.com/aws/aws-sdk-go/service/s3/s3manager"
 	"github.com/go-resty/resty/v2"
-	"github.com/tencentyun/cos-go-sdk-v5"
+	log "github.com/sirupsen/logrus"
 )
 
 type Quqi struct {
 	model.Storage
 	Addition
+	Cookie   string // Cookie
 	GroupID  string // 私人云群组ID
 	ClientID string // 随机生成客户端ID 经过测试，部分接口调用若不携带client id会出现错误
 }
@@ -125,51 +129,27 @@ func (d *Quqi) List(ctx context.Context, dir model.Obj, args model.ListArgs) ([]
 }
 
 func (d *Quqi) Link(ctx context.Context, file model.Obj, args model.LinkArgs) (*model.Link, error) {
-	var getDocResp = &GetDocRes{}
-
-	// 优先从getDoc接口获取文件预览链接，速度比实际下载链接更快
-	if _, err := d.request("", "/api/doc/getDoc", resty.MethodPost, func(req *resty.Request) {
-		req.SetFormData(map[string]string{
-			"quqi_id":   d.GroupID,
-			"tree_id":   "1",
-			"node_id":   file.GetID(),
-			"client_id": d.ClientID,
-		})
-	}, getDocResp); err != nil {
-		return nil, err
-	}
-	if getDocResp.Data.OriginPath != "" {
-		return &model.Link{
-			URL: getDocResp.Data.OriginPath,
-			Header: http.Header{
-				"Origin": []string{"https://quqi.com"},
-				"Cookie": []string{d.Cookie},
-			},
-		}, nil
+	if d.CDN {
+		link, err := d.linkFromCDN(file.GetID())
+		if err != nil {
+			log.Warn(err)
+		} else {
+			return link, nil
+		}
 	}
 
-	// 对于非会员用户，无法从getDoc接口获取文件预览链接，只能获取下载链接
-	var getDownloadResp GetDownloadResp
-	if _, err := d.request("", "/api/doc/getDownload", resty.MethodGet, func(req *resty.Request) {
-		req.SetQueryParams(map[string]string{
-			"quqi_id":     d.GroupID,
-			"tree_id":     "1",
-			"node_id":     file.GetID(),
-			"url_type":    "undefined",
-			"entry_type":  "undefined",
-			"client_id":   d.ClientID,
-			"no_redirect": "1",
-		})
-	}, &getDownloadResp); err != nil {
+	link, err := d.linkFromPreview(file.GetID())
+	if err != nil {
+		log.Warn(err)
+	} else {
+		return link, nil
+	}
+
+	link, err = d.linkFromDownload(file.GetID())
+	if err != nil {
 		return nil, err
 	}
-	return &model.Link{
-		URL: getDownloadResp.Data.Url,
-		Header: http.Header{
-			"Origin": []string{"https://quqi.com"},
-			"Cookie": []string{d.Cookie},
-		},
-	}, nil
+	return link, nil
 }
 
 func (d *Quqi) MakeDir(ctx context.Context, parentDir model.Obj, dirName string) (model.Obj, error) {
@@ -370,49 +350,60 @@ func (d *Quqi) Put(ctx context.Context, dstDir model.Obj, stream model.FileStrea
 		return nil, err
 	}
 	// upload
-	u, err := url.Parse(fmt.Sprintf("https://%s.cos.ap-shanghai.myqcloud.com", uploadInitResp.Data.Bucket))
-	b := &cos.BaseURL{BucketURL: u}
-	client := cos.NewClient(b, &http.Client{
-		Transport: &cos.CredentialTransport{
-			Credential: cos.NewTokenCredential(tempKeyResp.Data.Credentials.TmpSecretID, tempKeyResp.Data.Credentials.TmpSecretKey, tempKeyResp.Data.Credentials.SessionToken),
-		},
-	})
-	partSize := int64(1024 * 1024 * 2)
-	partCount := (stream.GetSize() + partSize - 1) / partSize
-	for i := 1; i <= int(partCount); i++ {
-		length := partSize
-		if i == int(partCount) {
-			length = stream.GetSize() - (int64(i)-1)*partSize
+	// u, err := url.Parse(fmt.Sprintf("https://%s.cos.ap-shanghai.myqcloud.com", uploadInitResp.Data.Bucket))
+	// b := &cos.BaseURL{BucketURL: u}
+	// client := cos.NewClient(b, &http.Client{
+	// 	Transport: &cos.CredentialTransport{
+	// 		Credential: cos.NewTokenCredential(tempKeyResp.Data.Credentials.TmpSecretID, tempKeyResp.Data.Credentials.TmpSecretKey, tempKeyResp.Data.Credentials.SessionToken),
+	// 	},
+	// })
+	// partSize := int64(1024 * 1024 * 2)
+	// partCount := (stream.GetSize() + partSize - 1) / partSize
+	// for i := 1; i <= int(partCount); i++ {
+	// 	length := partSize
+	// 	if i == int(partCount) {
+	// 		length = stream.GetSize() - (int64(i)-1)*partSize
+	// 	}
+	// 	_, err := client.Object.UploadPart(
+	// 		ctx, uploadInitResp.Data.Key, uploadInitResp.Data.UploadID, i, io.LimitReader(f, partSize), &cos.ObjectUploadPartOptions{
+	// 			ContentLength: length,
+	// 		},
+	// 	)
+	// 	if err != nil {
+	// 		return nil, err
+	// 	}
+	// }
+
+	cfg := &aws.Config{
+		Credentials: credentials.NewStaticCredentials(tempKeyResp.Data.Credentials.TmpSecretID, tempKeyResp.Data.Credentials.TmpSecretKey, tempKeyResp.Data.Credentials.SessionToken),
+		Region:      aws.String("ap-shanghai"),
+		Endpoint:    aws.String("cos.ap-shanghai.myqcloud.com"),
+	}
+	s, err := session.NewSession(cfg)
+	if err != nil {
+		return nil, err
+	}
+	uploader := s3manager.NewUploader(s)
+	buf := make([]byte, 1024*1024*2)
+	for partNumber := int64(1); ; partNumber++ {
+		n, err := io.ReadFull(f, buf)
+		if err != nil && err != io.ErrUnexpectedEOF {
+			if err == io.EOF {
+				break
+			}
+			return nil, err
 		}
-		_, err := client.Object.UploadPart(
-			ctx, uploadInitResp.Data.Key, uploadInitResp.Data.UploadID, i, io.LimitReader(f, partSize), &cos.ObjectUploadPartOptions{
-				ContentLength: length,
-			},
-		)
+		_, err = uploader.S3.UploadPartWithContext(ctx, &s3.UploadPartInput{
+			UploadId:   &uploadInitResp.Data.UploadID,
+			Key:        &uploadInitResp.Data.Key,
+			Bucket:     &uploadInitResp.Data.Bucket,
+			PartNumber: aws.Int64(partNumber),
+			Body:       bytes.NewReader(buf[:n]),
+		})
 		if err != nil {
 			return nil, err
 		}
 	}
-	//cfg := &aws.Config{
-	//	Credentials: credentials.NewStaticCredentials(tempKeyResp.Data.Credentials.TmpSecretID, tempKeyResp.Data.Credentials.TmpSecretKey, tempKeyResp.Data.Credentials.SessionToken),
-	//	Region:      aws.String("shanghai"),
-	//	Endpoint:    aws.String("cos.ap-shanghai.myqcloud.com"),
-	//	// S3ForcePathStyle: aws.Bool(true),
-	//}
-	//s, err := session.NewSession(cfg)
-	//if err != nil {
-	//	return nil, err
-	//}
-	//uploader := s3manager.NewUploader(s)
-	//input := &s3manager.UploadInput{
-	//	Bucket: &uploadInitResp.Data.Bucket,
-	//	Key:    &uploadInitResp.Data.Key,
-	//	Body:   f,
-	//}
-	//_, err = uploader.UploadWithContext(ctx, input)
-	//if err != nil {
-	//	return nil, err
-	//}
 	// finish upload
 	var uploadFinishResp UploadFinishResp
 	_, err = d.request("", "/api/upload/v1/file/finish", resty.MethodPost, func(req *resty.Request) {
