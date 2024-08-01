@@ -3,6 +3,7 @@ package alist_v3
 import (
 	"context"
 	"fmt"
+	"github.com/go-resty/resty/v2"
 	"io"
 	"net/http"
 	"path"
@@ -63,7 +64,7 @@ func (d *AListV3) Init(ctx context.Context) error {
 		//	return fmt.Errorf("the site does not allow mounted")
 		//}
 		//allowMounted := true
-		
+
 	}
 	return err
 }
