@@ -3,33 +3,33 @@ module github.com/alist-org/alist/v3
 go 1.22.4
 
 require (
-	github.com/SheltonZhu/115driver v1.0.25
-	github.com/Xhofe/go-cache v0.0.0-20220723083548-714439c8af9a
+	github.com/SheltonZhu/115driver v1.0.27
+	github.com/Xhofe/go-cache v0.0.0-20240804043513-b1a71927bc21
 	github.com/Xhofe/rateg v0.0.0-20230728072201-251a4e1adad4
-	github.com/alist-org/gofakes3 v0.0.6
+	github.com/alist-org/gofakes3 v0.0.7
 	github.com/alist-org/times v0.0.0-20240721124654-efa0c7d3ad92
 	github.com/aliyun/aliyun-oss-go-sdk v3.0.2+incompatible
 	github.com/avast/retry-go v3.0.0+incompatible
-	github.com/aws/aws-sdk-go v1.54.19
-	github.com/blevesearch/bleve/v2 v2.4.1
+	github.com/aws/aws-sdk-go v1.55.5
+	github.com/blevesearch/bleve/v2 v2.4.2
 	github.com/caarlos0/env/v9 v9.0.0
-	github.com/charmbracelet/bubbles v0.18.0
-	github.com/charmbracelet/bubbletea v0.26.6
-	github.com/charmbracelet/lipgloss v0.12.1
-	github.com/city404/v6-public-rpc-proto/go v0.0.0-20240708163039-9a9b82a0ce4d
+	github.com/charmbracelet/bubbles v0.19.0
+	github.com/charmbracelet/bubbletea v0.27.0
+	github.com/charmbracelet/lipgloss v0.13.0
+	github.com/city404/v6-public-rpc-proto/go v0.0.0-20240817070657-90f8e24b653e
 	github.com/coreos/go-oidc v2.2.1+incompatible
 	github.com/deckarep/golang-set/v2 v2.6.0
 	github.com/dhowden/tag v0.0.0-20240417053706-3d75831295e8
 	github.com/disintegration/imaging v1.6.2
-	github.com/dlclark/regexp2 v1.11.2
+	github.com/dlclark/regexp2 v1.11.4
 	github.com/dustinxie/ecc v0.0.0-20210511000915-959544187564
 	github.com/foxxorcat/mopan-sdk-go v0.1.6
 	github.com/foxxorcat/weiyun-sdk-go v0.1.3
 	github.com/gaoyb7/115drive-webdav v0.1.8
 	github.com/gin-contrib/cors v1.7.2
 	github.com/gin-gonic/gin v1.10.0
-	github.com/go-resty/resty/v2 v2.13.1
-	github.com/go-webauthn/webauthn v0.10.2
+	github.com/go-resty/resty/v2 v2.14.0
+	github.com/go-webauthn/webauthn v0.11.1
 	github.com/golang-jwt/jwt/v4 v4.5.0
 	github.com/google/uuid v1.6.0
 	github.com/gorilla/websocket v1.5.3
@@ -37,9 +37,9 @@ require (
 	github.com/ipfs/go-ipfs-api v0.7.0
 	github.com/jlaffaye/ftp v0.2.0
 	github.com/json-iterator/go v1.1.12
-	github.com/larksuite/oapi-sdk-go/v3 v3.3.0
+	github.com/larksuite/oapi-sdk-go/v3 v3.3.1
 	github.com/maruel/natural v1.1.1
-	github.com/meilisearch/meilisearch-go v0.27.0
+	github.com/meilisearch/meilisearch-go v0.27.2
 	github.com/minio/sio v0.4.0
 	github.com/natefinch/lumberjack v2.0.0+incompatible
 	github.com/ncw/swift/v2 v2.0.2
@@ -55,15 +55,15 @@ require (
 	github.com/u2takey/ffmpeg-go v0.5.0
 	github.com/upyun/go-sdk/v3 v3.0.4
 	github.com/winfsp/cgofuse v1.5.1-0.20230130140708-f87f5db493b5
-	github.com/xhofe/tache v0.1.1
+	github.com/xhofe/tache v0.1.2
 	github.com/xhofe/wopan-sdk-go v0.1.3
 	github.com/zzzhr1990/go-common-entity v0.0.0-20221216044934-fd1c571e3a22
-	golang.org/x/crypto v0.25.0
-	golang.org/x/exp v0.0.0-20240707233637-46b078467d37
-	golang.org/x/image v0.18.0
-	golang.org/x/net v0.27.0
-	golang.org/x/oauth2 v0.21.0
-	golang.org/x/time v0.5.0
+	golang.org/x/crypto v0.26.0
+	golang.org/x/exp v0.0.0-20240823005443-9b4947da3948
+	golang.org/x/image v0.19.0
+	golang.org/x/net v0.28.0
+	golang.org/x/oauth2 v0.22.0
+	golang.org/x/time v0.6.0
 	google.golang.org/appengine v1.6.8
 	gopkg.in/ldap.v3 v3.1.0
 	gorm.io/driver/mysql v1.5.7
@@ -74,8 +74,8 @@ require (
 
 require (
 	github.com/BurntSushi/toml v0.3.1 // indirect
-	github.com/blevesearch/go-faiss v1.0.19 // indirect
-	github.com/blevesearch/zapx/v16 v16.1.4 // indirect
+	github.com/blevesearch/go-faiss v1.0.20 // indirect
+	github.com/blevesearch/zapx/v16 v16.1.5 // indirect
 	github.com/bytedance/sonic/loader v0.1.1 // indirect
 	github.com/charmbracelet/x/ansi v0.1.4 // indirect
 	github.com/charmbracelet/x/input v0.1.0 // indirect
@@ -102,12 +102,12 @@ require (
 	github.com/beorn7/perks v1.0.1 // indirect
 	github.com/bits-and-blooms/bitset v1.12.0 // indirect
 	github.com/blang/semver/v4 v4.0.0 // indirect
-	github.com/blevesearch/bleve_index_api v1.1.9 // indirect
+	github.com/blevesearch/bleve_index_api v1.1.10 // indirect
 	github.com/blevesearch/geo v0.1.20 // indirect
 	github.com/blevesearch/go-porterstemmer v1.0.3 // indirect
 	github.com/blevesearch/gtreap v0.1.1 // indirect
 	github.com/blevesearch/mmap-go v1.0.4 // indirect
-	github.com/blevesearch/scorch_segment_api/v2 v2.2.14 // indirect
+	github.com/blevesearch/scorch_segment_api/v2 v2.2.15 // indirect
 	github.com/blevesearch/segment v0.9.1 // indirect
 	github.com/blevesearch/snowballstem v0.9.0 // indirect
 	github.com/blevesearch/upsidedown_store_api v1.0.2 // indirect
@@ -125,7 +125,7 @@ require (
 	github.com/crackcomm/go-gitignore v0.0.0-20170627025303-887ab5e44cc3 // indirect
 	github.com/davecgh/go-spew v1.1.2-0.20180830191138-d8f796af33cc // indirect
 	github.com/decred/dcrd/dcrec/secp256k1/v4 v4.1.0 // indirect
-	github.com/fxamacker/cbor/v2 v2.6.0 // indirect
+	github.com/fxamacker/cbor/v2 v2.7.0 // indirect
 	github.com/gabriel-vasile/mimetype v1.4.3 // indirect
 	github.com/geoffgarside/ber v1.1.0 // indirect
 	github.com/gin-contrib/sse v0.1.0 // indirect
@@ -135,13 +135,13 @@ require (
 	github.com/go-playground/universal-translator v0.18.1 // indirect
 	github.com/go-playground/validator/v10 v10.20.0 // indirect
 	github.com/go-sql-driver/mysql v1.7.0 // indirect
-	github.com/go-webauthn/x v0.1.9 // indirect
+	github.com/go-webauthn/x v0.1.12 // indirect
 	github.com/goccy/go-json v0.10.2 // indirect
 	github.com/golang-jwt/jwt/v5 v5.2.1 // indirect
 	github.com/golang/geo v0.0.0-20210211234256-740aa86cb551 // indirect
 	github.com/golang/protobuf v1.5.4 // indirect
 	github.com/golang/snappy v0.0.4 // indirect
-	github.com/google/go-tpm v0.9.0 // indirect
+	github.com/google/go-tpm v0.9.1 // indirect
 	github.com/hashicorp/errwrap v1.1.0 // indirect
 	github.com/hashicorp/go-multierror v1.1.1 // indirect
 	github.com/hashicorp/go-version v1.6.0 // indirect
@@ -169,7 +169,7 @@ require (
 	github.com/mattn/go-colorable v0.1.13 // indirect
 	github.com/mattn/go-isatty v0.0.20 // indirect
 	github.com/mattn/go-localereader v0.0.1 // indirect
-	github.com/mattn/go-runewidth v0.0.15 // indirect
+	github.com/mattn/go-runewidth v0.0.16 // indirect
 	github.com/mattn/go-sqlite3 v1.14.22 // indirect
 	github.com/minio/sha256-simd v1.0.1 // indirect
 	github.com/mitchellh/go-homedir v1.1.0 // indirect
@@ -219,11 +219,11 @@ require (
 	github.com/yusufpapurcu/wmi v1.2.4 // indirect
 	go.etcd.io/bbolt v1.3.8 // indirect
 	golang.org/x/arch v0.8.0 // indirect
-	golang.org/x/sync v0.7.0 // indirect
-	golang.org/x/sys v0.22.0 // indirect
-	golang.org/x/term v0.22.0 // indirect
-	golang.org/x/text v0.16.0 // indirect
-	golang.org/x/tools v0.23.0 // indirect
+	golang.org/x/sync v0.8.0 // indirect
+	golang.org/x/sys v0.24.0 // indirect
+	golang.org/x/term v0.23.0 // indirect
+	golang.org/x/text v0.17.0 // indirect
+	golang.org/x/tools v0.24.0 // indirect
 	google.golang.org/api v0.169.0 // indirect
 	google.golang.org/genproto/googleapis/rpc v0.0.0-20240528184218-531527333157 // indirect
 	google.golang.org/grpc v1.65.0
